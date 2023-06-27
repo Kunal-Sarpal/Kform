@@ -1,7 +1,5 @@
 const express = require("express");
 const app = express();
-const path = require("path");
-const fs = require("fs");
 const mongoose = require("mongoose");
 
 const messageSchema = new mongoose.Schema({
@@ -28,14 +26,10 @@ app.use(express.urlencoded({ extended: true }));
 
 app.set("view engine", "ejs");
 
+app.use(express.static("public"));
+
 app.get("/home", (req, res) => {
-  fs.readFile("index.html", "utf-8", (err, data) => {
-    if (err) {
-      res.send(err);
-    } else {
-      res.send(data);
-    }
-  });
+  res.sendFile("index.html", { root: __dirname + "/public" });
 });
 
 app.post("/form", async (req, res) => {
@@ -48,13 +42,7 @@ app.post("/form", async (req, res) => {
 
   await Message.create(messageData);
 
-  fs.readFile("thanks.html", "utf-8", (err, data) => {
-    if (err) {
-      res.send(err);
-    } else {
-      res.send(data);
-    }
-  });
+  res.sendFile("thanks.html", { root: __dirname + "/public" });
 });
 
 app.listen(8000, () => {
