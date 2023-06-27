@@ -1,60 +1,63 @@
 const express = require("express");
-const { connect } = require("http2");
 const app = express();
 const path = require("path");
-const mongoose = require("mongoose")
+const fs = require("fs");
+const mongoose = require("mongoose");
 
-const messageSchema = new mongoose.Schema(
-    {
-        name: String,
-        lastname: String,
-        email:String,
-        text:String
-    }
-)
-const Message = mongoose.model("Message",messageSchema);
+const messageSchema = new mongoose.Schema({
+  name: String,
+  lastname: String,
+  email: String,
+  text: String
+});
 
-mongoose.connect("mongodb://127.0.0.1:27017",{
-    dbName:"myform"
-}
-).then(()=>
-{
-    console.log("connected to database");
-}).catch((err)=>
-{
+const Message = mongoose.model("Message", messageSchema);
+
+mongoose
+  .connect("mongodb://127.0.0.1:27017", {
+    dbName: "myform"
+  })
+  .then(() => {
+    console.log("Connected to database");
+  })
+  .catch((err) => {
     console.log(err);
-})
+  });
 
 app.use(express.urlencoded({ extended: true }));
 
-app.set("view engine", "ejs")
-app.get("/home",(req,res)=>
-{
-    res.render("index.ejs")
-})
-app.get("/thanks",(req,res)=>
-{
-    res.render("thanks.ejs")
-})
-app.post("/form", async (req,res)=>
-{
-    const messageData =   {
-        name:req.body.name,
-        lastname:req.body.lastname,
-        email:req.body.email,
-        text:req.body.text
+app.set("view engine", "ejs");
+
+app.get("/home", (req, res) => {
+  fs.readFile("index.html", "utf-8", (err, data) => {
+    if (err) {
+      res.send(err);
+    } else {
+      res.send(data);
     }
+  });
+});
 
-    await Message.create(messageData)
+app.post("/form", async (req, res) => {
+  const messageData = {
+    name: req.body.name,
+    lastname: req.body.lastname,
+    email: req.body.email,
+    text: req.body.text
+  };
 
-      res.redirect("/thanks")
+  await Message.create(messageData);
 
-})
+  fs.readFile("thanks.html", "utf-8", (err, data) => {
+    if (err) {
+      res.send(err);
+    } else {
+      res.send(data);
+    }
+  });
+});
 
-
-
-app.listen(8000,()=>
-{
-    console.log("Server is Connected")
-    console.log("http://localhost:8000/home")
-})
+app.listen(8000, () => {
+  console.log("Server is connected");
+  console.log("http://localhost:8000/home");
+});
