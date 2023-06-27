@@ -32,12 +32,12 @@ app.get("/home", (req, res) => {
   res.sendFile("index.html", { root: __dirname + "/public" });
 });
 
-app.post("/form", async (req, res) => {
+app.get("/form", async (req, res) => {
   const messageData = {
-    name: req.body.name,
-    lastname: req.body.lastname,
-    email: req.body.email,
-    text: req.body.text
+    name: req.query.name,
+    lastname: req.query.lastname,
+    email: req.query.email,
+    text: req.query.text
   };
 
   await Message.create(messageData);
